@@ -1,23 +1,21 @@
 name: Go
 on: [push]
 jobs:
-
   build:
     name: Build
     runs-on: ubuntu-latest
     steps:
-
     - name: Set up Go 1.12
       uses: actions/setup-go@v1
       with:
         version: 1.12
       id: go
-
     - name: Check out code
       uses: actions/checkout@master
-
     - name: Get dependencies
       run: GO111MODULE=on go mod download
+    - name: fmt
+      run: GO111MODULE=on test -z "$(gofmt -l .)"
     - name: Go Build
       run: GO111MODULE=on go build -v .
     - name: Docker build
