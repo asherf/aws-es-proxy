@@ -1,25 +1,22 @@
-FROM golang:1.9-alpine
+FROM golang:1.12-alpine
+LABEL name="aws-es-proxy" \
+  version="latest"
 
-WORKDIR /go/src/github.com/abutaha/aws-es-proxy
+RUN apk add --update bash curl git && rm /var/cache/apk/*
+
+ENV GO111MODULE=on
+
+WORKDIR /app
+
+COPY go.mod .
+COPY go.sum .
+
+RUN go mod download
+
 COPY . .
 
-RUN apk add --update bash curl git && \
-    rm /var/cache/apk/*
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /usr/local/bin/aws-es-proxy
 
-RUN mkdir -p $$GOPATH/bin && \
-    curl https://glide.sh/get | sh
-
-RUN glide install
-RUN CGO_ENABLED=0 GOOS=linux go build -o aws-es-proxy
-
-
-FROM alpine:3.7
-LABEL name="aws-es-proxy" \
-      version="latest"
-
-RUN apk --no-cache add ca-certificates
-WORKDIR /home/
-COPY --from=0 /go/src/github.com/abutaha/aws-es-proxy/aws-es-proxy /usr/local/bin/
 
 ENV PORT_NUM 9200
 EXPOSE ${PORT_NUM}
