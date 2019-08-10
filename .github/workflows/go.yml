@@ -18,5 +18,7 @@ jobs:
 
     - name: Get dependencies
       run: GO111MODULE=on go mod download
-    - name: Build
+    - name: Go Build
       run: GO111MODULE=on go build -v .
+    - name: Docker build
+      run: docker build . -t asherf/aws-es-proxy
